@@ -10,18 +10,59 @@ const inputDistance = document.querySelector('.form__input--distance');
 const inputDuration = document.querySelector('.form__input--duration');
 const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
-
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition(
-    function (position) {
-      const { latitude } = position.coords;
-      const { longitude } = position.coords;
-      console.log(latitude, longitude);
+let map, mapEvent;
+navigator.geolocation.getCurrentPosition(function (position) {
+  const { latitude } = position.coords;
+  const { longitude } = position.coords;
+  //console.log(latitude, longitude);
+  //console.log(`https://www.google.pt/maps/@${latitude},${longitude}`);
+  const coords = [latitude, longitude];
+  map = L.map('map').setView(coords, 13);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+  //Handling clicks on maps
+  map.on(
+    'click',
+    function (mapE) {
+      mapEvent = mapE;
+      form.classList.remove('hidden');
+      inputDistance.focus();
+      console.log(mapEvent);
     },
     function () {
       alert('Could not get your position');
     }
   );
-} else {
-  alert('Your browser does not support geolocation');
-}
+
+  form.addEventListener('submit', function (e) {
+    event.preventDefault();
+
+    //Clear input fields
+    inputDistance.value =
+      inputDuration.value =
+      inputDuration.value =
+      inputCadence.value =
+        '';
+    const { lat, lng } = mapEvent.latlng;
+    L.marker([lat, lng])
+      .addTo(map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 200,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: 'running-popup',
+        })
+      )
+      .setPopupContent('workout')
+      .openPopup();
+  });
+});
+
+inputType.addEventListener('change', function () {
+  inputElevation.closest('.form__row').classList.toggle('form__row--hidden');
+  inputCadence.closest('.form__row').classList.toggle('form__row--hidden');
+});
