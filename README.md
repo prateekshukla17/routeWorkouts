@@ -1,4 +1,4 @@
-# 🏋️‍♂️ Workout Map Logger
+# 🏋️‍♂️ RouteWorkouts
 
 ## 📌 Features
 - Detects user’s current location.
